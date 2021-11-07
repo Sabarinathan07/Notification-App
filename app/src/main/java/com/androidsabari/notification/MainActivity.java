@@ -2,6 +2,7 @@ package com.androidsabari.notification;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationManagerCompat;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -15,6 +16,8 @@ public class MainActivity extends AppCompatActivity {
 
     Button button;
 
+    int counter = 0;
+
     public final String CHANNEL_ID = "1";
 
     @Override
@@ -26,21 +29,40 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                counter++;
+                button.setText(" "+counter);
+                if(counter==5){
+                    startNotification();
+                }
 
             }
         });
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
     public void startNotification(){
-        NotificationChannel channel = new NotificationChannel(CHANNEL_ID,"1",
-                NotificationManager.IMPORTANCE_DEFAULT);
+        NotificationChannel channel = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            channel = new NotificationChannel(CHANNEL_ID,"1",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+        }
 
         NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        manager.createNotificationChannel(channel);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            manager.createNotificationChannel(channel);
+        }
 
-        Notification.Builder builder = new Notification.Builder(MainActivity.this,CHANNEL_ID);
+        Notification.Builder builder = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            builder = new Notification.Builder(MainActivity.this,CHANNEL_ID);
+        }
+        builder.setSmallIcon(R.drawable.ic_baseline_notifications_24)
+                .setContentTitle("Title")
+                .setContentText("Notification text")
+                .setPriority(Notification.PRIORITY_DEFAULT);
 
+        NotificationManagerCompat compat = NotificationManagerCompat.from(MainActivity.this);
+        compat.notify(1,builder.build());
 
 
     }
